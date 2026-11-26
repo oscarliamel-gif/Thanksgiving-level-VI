@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thanksgiving Escape Room – Passive Voice</title>
+<style>
+:root{--ink:#3b2418;--cran:#9b1c31;--gold:#d99a00;--leaf:#3f6b35;--soft:#fff6df;--line:#e3cfa6}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.55 Georgia,"Times New Roman",serif;color:var(--ink);background:#fff;overflow-x:hidden}
+.wrap{max-width:860px;margin:0 auto;padding:16px;position:relative;z-index:1}
+header{background:var(--cran);color:#fff;padding:18px 20px;border-radius:12px}
+header .t{font:700 14px/1.3 Verdana,sans-serif;opacity:.9}
+header h1{margin:6px 0 2px;font-size:30px;line-height:1.15}
+header p{margin:0;font-size:15px}
+.names{margin:14px 0}
+.names label{font:15px Verdana,sans-serif;display:flex;gap:10px;align-items:flex-end}
+.names input{flex:1;border:0;border-bottom:2px solid var(--ink);font:17px Georgia,serif;padding:4px 2px;background:transparent}
+.timer{position:sticky;top:0;z-index:5;background:#fff;border-bottom:2px solid var(--gold);padding:8px 0;display:flex;gap:12px;align-items:center;font:700 15px Verdana,sans-serif}
+#clock{font-size:26px;color:var(--cran)}
+button{font:inherit;cursor:pointer}
+.go{background:var(--leaf);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:700 14px Verdana,sans-serif}
+.go:disabled{background:#999;cursor:not-allowed}
+.box{background:var(--soft);border:2px solid var(--line);border-radius:12px;padding:14px 18px;margin:14px 0}
+.box h2{margin:0 0 6px;font-size:21px}
+.box ol{margin:6px 0;padding-left:22px}
+table.abc{border-collapse:collapse;width:100%;font:14px Verdana,sans-serif;text-align:center;margin-top:8px}
+table.abc td,table.abc th{border:1px solid var(--line);padding:3px 0}
+table.abc th{background:var(--gold);color:#fff}
+section.room{border:3px solid var(--ink);border-radius:14px;margin:26px 0;overflow:hidden}
+.rh{display:flex;gap:14px;align-items:center;background:var(--ink);color:#fff;padding:10px 16px}
+.pic{font-size:40px;width:64px;height:64px;border-radius:50%;background:var(--gold);display:grid;place-items:center;flex:none}
+.rh h2{margin:0;font-size:22px;line-height:1.2}
+.rh small{font:13px Verdana,sans-serif;opacity:.85}
+.rb{padding:14px 18px}
+.read{background:var(--soft);border-left:6px solid var(--gold);padding:10px 14px;margin:8px 0;max-width:70ch}
+.read p{margin:0}
+.q{font-weight:700;margin:14px 0 6px}
+.chk{display:grid;gap:6px;margin:6px 0}
+.chk label{display:flex;gap:8px;align-items:flex-start;border:2px solid var(--line);border-radius:10px;padding:6px 10px}
+.chk input{width:20px;height:20px;margin-top:4px;flex:none}
+select{font:16px Georgia,serif;padding:3px;border:2px solid var(--line);border-radius:6px;max-width:100%}
+.line{margin:10px 0}
+.bank{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;padding:8px;border:2px dashed var(--gold);border-radius:10px;min-height:48px}
+.chip{background:var(--gold);color:#fff;border-radius:8px;padding:5px 10px;font:700 14px Verdana,sans-serif;cursor:grab;user-select:none}
+.chip.sel{outline:3px solid var(--cran)}
+.chip.used{display:none}
+.slot{display:inline-block;min-width:130px;min-height:30px;border:2px dashed var(--ink);border-radius:8px;padding:0 8px;vertical-align:middle;text-align:center;font-weight:700;color:var(--leaf)}
+.slot:empty::before{content:"drag here";color:#999;font:400 13px Verdana,sans-serif;line-height:26px}
+.slot.full{border-style:solid;background:#fff}
+.mat .line{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mat .slot{flex:1;min-width:220px}
+.write{width:100%;max-width:520px;border:0;border-bottom:2px solid var(--ink);font:16px Georgia,serif;margin-top:4px;background:transparent}
+.msg{min-height:1.5em;font:700 15px Verdana,sans-serif;margin:8px 0 0}
+.good{color:var(--leaf)}.bad{color:var(--cran)}
+.codebox{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:8px;margin:10px 0}
+.codebox div{border:2px solid var(--ink);border-radius:8px;text-align:center;font:12px Verdana,sans-serif;padding:4px}
+.codebox input{width:100%;border:0;border-bottom:2px solid var(--ink);text-align:center;font:700 18px Georgia,serif;margin-top:3px;background:transparent}
+.final{border:4px solid var(--cran);border-radius:14px;padding:14px 18px;margin:26px 0}
+.final input.lock{font:700 20px Georgia,serif;width:100%;max-width:520px;border:3px solid var(--ink);border-radius:10px;padding:8px}
+.lockmsg{padding:14px 18px;font:700 15px Verdana,sans-serif;color:var(--cran);background:#fbe5e8}
+.room.locked .rb,.room.locked .art{display:none}
+.art{text-align:center;font-size:30px;letter-spacing:6px;padding:6px 10px;background:linear-gradient(90deg,#fff6df,#ffe9b8,#fff6df);border-bottom:2px dashed var(--line)}
+.leaf{position:fixed;top:-40px;z-index:0;pointer-events:none;opacity:.55;animation:fall linear infinite}
+@keyframes fall{from{transform:translate(0,0) rotate(0)}to{transform:translate(var(--dx),115vh) rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.leaf{display:none}}
+#win{position:fixed;inset:0;z-index:50;background:rgba(59,36,24,.85);display:none;align-items:center;justify-content:center;padding:16px}
+#win.on{display:flex}
+#win .card{background:#fff;border:6px solid var(--gold);border-radius:20px;max-width:560px;width:100%;padding:24px 20px;text-align:center;max-height:92vh;overflow:auto}
+#win .sch{font:700 14px Verdana,sans-serif;color:var(--cran)}
+#win h2{font-size:32px;line-height:1.15;margin:12px 0}
+#win .big{font-size:40px;letter-spacing:4px}
+.fin.locked{display:none}
+@media print{.timer,.go,.leaf,#win{display:none}section.room{break-inside:avoid}}
+@media(max-width:520px){body{font-size:16px}header h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<div class="t">Mr. Oscar Herrera · English VI · CEUTEC</div>
+<h1>🦃 Thanksgiving Escape Room</h1>
+<p>Grammar: Passive Voice · Time: 30 minutes</p>
+</header>
+
+<div class="names"><label>Name:<input type="text" id="student" aria-label="Student name" placeholder="Type your name to start"></label></div>
+
+<div class="timer"><span>⏱ Time left:</span><span id="clock">30:00</span> <small style="font-weight:400">(starts when you type your name)</small></div>
+
+<div class="box">
+<h2>📜 Instructions</h2>
+<ol>
+<li>The Thanksgiving dinner is locked! You are in a house with <b>10 rooms</b>. You have <b>30 minutes</b> to open all the doors. The timer starts when you type your name.</li>
+<li>Type your name above to open Room 1. The other rooms are locked: a room opens only when the room before it is solved.</li>
+<li>Do all the activities in the room. Then press <b>Check my answers</b>.</li>
+<li>If everything is correct, the door opens and you get a <b>secret letter</b>. If not, you must wait and try again. Read carefully!</li>
+<li>Write each letter in the <b>Code Sheet</b> at the end. Use the <b>alphabet code</b> to change each letter into a number.</li>
+<li>When all 10 rooms are solved, complete the <b>Code Sheet</b> and check it. Then the final code box unlocks. Enter your final code to open the dinner!</li>
+<li>Remember: passive voice = <b>am/is/are/was/were + past participle</b>. Example: <i>The turkey <u>was cooked</u> by my father.</i></li>
+</ol>
+</div>
+
+<div class="box">
+<h2>🔑 Alphabet Code</h2>
+<table class="abc" id="abc"></table>
+</div>
+
+<!-- ROOM 1 -->
+<section class="room" data-letter="G">
+<div class="rh"><div class="pic">🍂</div><div><h2>Room 1 · The First Thanksgiving</h2><small>Reading · Multiple choice</small></div></div>
+<div class="rb">
+<div class="read"><p>
+Thanksgiving is celebrated in the United States every November.<br>
+The first Thanksgiving happened in 1621.<br>
+The Pilgrims lived in Plymouth.<br>
+The Wampanoag people helped them with food.<br>
+The celebration was held for three days.<br>
+The Pilgrims and the Wampanoag ate corn, fish, and wild birds.<br>
+Today, a big turkey is cooked in many homes.<br>
+Families eat pumpkin pie for dessert.<br>
+Many people watch football after dinner.<br>
+Thanks are given for food, family, and friends.
+</p></div>
+<div class="q">1. Who helped the Pilgrims with food?</div>
+<div class="chk radio" data-ans="c">
+<label><input type="radio" name="r1a" value="a"> The French sailors</label>
+<label><input type="radio" name="r1a" value="b"> The Vikings</label>
+<label><input type="radio" name="r1a" value="c"> The Wampanoag people</label>
+<label><input type="radio" name="r1a" value="d"> The king of England</label>
+<label><input type="radio" name="r1a" value="e"> The Spanish soldiers</label>
+</div>
+<div class="q">2. How long was the first celebration?</div>
+<div class="chk radio" data-ans="d">
+<label><input type="radio" name="r1b" value="a"> One day</label>
+<label><input type="radio" name="r1b" value="b"> One week</label>
+<label><input type="radio" name="r1b" value="c"> Two days</label>
+<label><input type="radio" name="r1b" value="d"> Three days</label>
+<label><input type="radio" name="r1b" value="e"> One month</label>
+</div>
+<div class="q">3. What do families eat for dessert?</div>
+<div class="chk radio" data-ans="b">
+<label><input type="radio" name="r1c" value="a"> Apple cake</label>
+<label><input type="radio" name="r1c" value="b"> Pumpkin pie</label>
+<label><input type="radio" name="r1c" value="c"> Ice cream</label>
+<label><input type="radio" name="r1c" value="d"> Cookies</label>
+<label><input type="radio" name="r1c" value="e"> Fruit salad</label>
+</div>
+<button class="go chk-btn">Check my answers</button><p class="msg"></p>
+</div></section>
+
+<!-- ROOM 2 -->
+<section class="room" data-letter="R">
+<div class="rh"><div class="pic">🍗</div><div><h2>Room 2 · The Kitchen</h2><small>Check the 2 passive sentences (two sets)</small></div></div>
+<div class="rb">
+<div class="q">Set A: ✅ Check the 2 sentences in passive voice.</div>
+<div class="chk checks" data-ans="2,4">
+<label><input type="checkbox" value="1"> <span>The family cooks a big dinner.</span></label>
+<label><input type="checkbox" value="2"> <span>The turkey is cooked in the oven.</span></label>
+<label><input type="checkbox" value="3"> <span>Mom sets the table.</span></label>
+<label><input type="checkbox" value="4"> <span>The table is decorated with flowers.</span></label>
+<label><input type="checkbox" value="5"> <span>We eat pumpkin pie.</span></label>
+</div>
+<div class="q">Set B: ✅ Check the 2 sentences in passive voice.</div>
+<div class="chk checks" data-ans="2,5">
+<label><input type="checkbox" value="1"> <span>Dad cuts the turkey.</span></label>
+<label><input type="checkbox" value="2"> <span>The rolls are baked by Grandma.</span></label>
+<label><input type="checkbox" value="3"> <span>My sister makes the salad.</span></label>
+<label><input type="checkbox" value="4"> <span>We drink apple juice.</span></label>
+<label><input type="checkbox" value="5"> <span>The candles are lit by Mr. Herrera.</span></label>
+</div>
+<button class="go chk-btn">Check my answers</button><p class="msg"></p>
+</div></section>
+
+<!-- ROOM 3 -->
+<section class="room" data-letter="A">
+<div class="rh"><div class="pic">🥧</div><div><h2>Room 3 · The Dining Table</h2><small>Drag and match</small></div></div>
+<div class="rb dd">
+<p>🖐 <b>Drag</b> each past participle to the correct sentence. (On a phone: tap the word, then tap the box.)</p>
+<div class="bank">
+<span class="chip" id="a1">decorated</span><span class="chip" id="a2">served</span><span class="chip" id="a3">cooked</span><span class="chip" id="a4">harvested</span><span class="chip" id="a5">invited</span>
+</div>
+<div class="line">1. The turkey is <span class="slot" data-a="cooked"></span> in the oven.</div>
+<div class="line">2. The guests were <span class="slot" data-a="invited"></span> to dinner.</div>
+<div class="line">3. The pie is <span class="slot" data-a="served"></span> with whipped cream.</div>
+<div class="line">4. The corn was <span class="slot" data-a="harvested"></span> in autumn.</div>
+<div class="line">5. The table was <span class="slot" data-a="decorated"></span> with flowers.</div>
+<button class="go chk-btn">Check my answers</button><p class="msg"></p>
+</div></section>
+
+<!-- ROOM 4 -->
+<section class="room" data-letter="T">
+<div class="rh"><div class="pic">🌽</div><div><h2>Room 4 · The Pantry</h2><small>Fill in the blanks</small></div></div>
+<div class="rb">
+<p>✏️ Choose the correct passive form.</p>
+<div class="line">1. Pumpkin pie
+<select data-ans="b"><option>—</option><option value="a">a) serves</option><option value="b">b) is served</option><option value="c">c) are served</option><option value="d">d) is serve</option></select> for dessert.</div>
+<div class="line">2. The cranberry sauce
+<select data-ans="a"><option>—</option><option value="a">a) was made</option><option value="b">b) is made</option><option value="c">c) were made</option><option value="d">d) made</option></select> yesterday.</div>
+<div class="line">3. Many turkeys
+<select data-ans="c"><option>—</option><option value="a">a) is eaten</option><option value="b">b) eat</option><option value="c">c) are eaten</option><option value="d">d) was eaten</option></select> every year.</div>
+<div class="line">4. The Pilgrims
+<select data-ans="b"><option>—</option><option value="a">a) was helped</option><option value="b">b) were helped</option><option value="c">c) helped</option><option value="d">d) are help</option></select> by the Wampanoag.</div>
+<div class="line">5. The parade
+<select data-ans="d"><option>—</option><option value="a">a) is watched</option><option value="b">b) watched</option><option value="c">c) were watched</option><option value="d">d) was watched</option></select> on TV last year.</div>
+<button class="go chk-btn">Check my answers</button><p class="msg"></p>
+</div></section>
+
+<!-- ROOM 5 -->
+<section class="room" data-letter="E">
+<div class="rh"><div class="pic">🎈</div><div><h2>Room 5 · The Parade</h2><small>Reading · Multiple choice · True or False</small></div></div>
+<div class="rb">
+<div class="read"><p>
+The Macy’s Thanksgiving Day Parade takes place in New York City.<br>
+Millions of people watch it every year.<br>
+The first parade was organized in 1924.<br>
+At that time, the parade used real animals.<br>
+Now, artists make giant balloons.<br>
+The balloons are filled with helium.<br>
+Many volunteers carry them.<br>
+Bands from different schools play music.<br>
+At the end, the crowd welcomes Santa Claus.<br>
+Children and adults enjoy the parade.
+</p></div>
+<div class="q">1. What are the giant balloons filled with?</div>
+<div class="chk radio" data-ans="d">
+<label><input type="radio" name="r5" value="a"> Water</label>
+<label><input type="radio" name="r5" value="b"> Sand</label>
+<label><input type="radio" name="r5" value="c"> Flour</label>
+<label><input type="radio" name="r5" value="d"> Helium</label>
+<label><input type="radio" name="r5" value="e"> Paper</label>
+</div>
+<div class="q">2. True or False?</div>
+<div class="line">a) The parade takes place in Chicago. <select data-ans="F"><option>—</option><option value="T">True</option><option value="F">False</option></select></div>
+<div class="line">b) The first parade was organized in 1924. <select data-ans="T"><option>—</option><option value="T">True</option><option value="F">False</option></select></div>
+<div class="line">c) Artists make giant balloons. <select data-ans="T"><option>—</option><option value="T">True</option><option value="F">False</option></select></div>
+<div class="line">d) Only children enjoy the parade. <select data-ans="F"><option>—</option><option value="T">True</option><option value="F">False</option></select></div>
+<div class="line">e) Bands from different schools play music. <select data-ans="T"><option>—</option><option value="T">True</option><option value="F">False</option></select></div>
+<button class="go chk-btn">Check my answers</button><p class="msg"></p>
+</div></section>
+
+<!-- ROOM 6 -->
+<section class="room" data-letter="F">
+<div class="rh"><div class="pic">🍰</div><div><h2>Room 6 · Grandma’s Kitchen</h2><small>Check the 2 passive sentences (two sets)</small></div></div>
+<div class="rb">
+<div class="q">Set A: ✅ Check the 2 sentences in passive voice.</div>
+<div class="chk checks" data-ans="1,5">
+<label><input type="checkbox" value="1"> <span>The cake was made by my aunt.</span></label>
+<label><input type="checkbox" value="2"> <span>Dad cooked the turkey.</span></label>
+<label><input type="checkbox" value="3"> <span>We washed the dishes.</span></label>
+<label><input type="checkbox" value="4"> <span>Uncle Tom carved the meat.</span></label>
+<label><input type="checkbox" value="5"> <span>The guests were welcomed by my parents.</span></label>
+</div>
+<div class="q">Set B: ✅ Check the 2 sentences in passive voice.</div>
+<div class="chk checks" data-ans="2,4">
+<label><input type="checkbox" value="1"> <span>We opened the windows.</span></label>
+<label><input type="checkbox" value="2"> <span>The soup was served by my cousin.</span></label>
+<label><input type="checkbox" value="3"> <span>Grandpa told a story.</span></label>
+<label><input type="checkbox" value="4"> <span>The story was enjoyed by everyone.</span></label>
+<label><input type="checkbox" value="5"> <span>The kids played games.</span></label>
+</div>
+<button class="go chk-btn">Check my answers</button><p class="msg"></p>
+</div></section>
+
+<!-- ROOM 7 -->
+<section class="room" data-letter="U">
+<div class="rh"><div class="pic">🌾</div><div><h2>Room 7 · The Farm</h2><small>Drag and match: active → passive</small></div></div>
+<div class="rb dd mat">
+<p>🖐 <b>Drag</b> each passive sentence to its active sentence.</p>
+<div class="bank">
+<span class="chip" id="b1">Pies are baked by Grandma.</span>
+<span class="chip" id="b2">Corn was planted by the Pilgrims.</span>
+<span class="chip" id="b3">Pumpkins are grown by farmers.</span>
+<span class="chip" id="b4">Turkeys are drawn by children.</span>
+<span class="chip" id="b5">The Pilgrims were taught by the Wampanoag.</span>
+</div>
+<div class="line"><span>1. The Pilgrims planted corn.</span><span class="slot" data-a="Corn was planted by the Pilgrims."></span></div>
+<div class="line"><span>2. Farmers grow pumpkins.</span><span class="slot" data-a="Pumpkins are grown by farmers."></span></div>
+<div class="line"><span>3. Children draw turkeys.</span><span class="slot" data-a="Turkeys are drawn by children."></span></div>
+<div class="line"><span>4. Grandma bakes pies.</span><span class="slot" data-a="Pies are baked by Grandma."></span></div>
+<div class="line"><span>5. The Wampanoag taught the Pilgrims.</span><span class="slot" data-a="The Pilgrims were taught by the Wampanoag."></span></div>
+<button class="go chk-btn">Check my answers</button><p class="msg"></p>
+</div></section>
+
+<!-- ROOM 8 -->
+<section class="room" data-letter="L">
+<div class="rh"><div class="pic">🧩</div><div><h2>Room 8 · The Puzzle Room</h2><small>Put the words in order</small></div></div>
+<div class="rb">
+<p>🧩 Write the correct sentence. Capital letters and periods are optional.</p>
+<div class="line">1. by / was / the / written / letter / Anna<br><input class="write" data-ans="The letter was written by Anna." aria-label="Sentence 1"></div>
+<div class="line">2. are / in / November / celebrated / holidays / many<br><input class="write" data-ans="Many holidays are celebrated in November." aria-label="Sentence 2"></div>
+<div class="line">3. was / bread / The / baked / yesterday<br><input class="write" data-ans="The bread was baked yesterday." aria-label="Sentence 3"></div>
+<div class="line">4. are / The / washed / vegetables / first<br><input class="write" data-ans="The vegetables are washed first." aria-label="Sentence 4"></div>
+<button class="go chk-btn">Check my answers</button><p class="msg"></p>
+</div></section>
+
+<!-- ROOM 9 -->
+<section class="room" data-letter="L">
+<div class="rh"><div class="pic">🏡</div><div><h2>Room 9 · Grandmother’s House</h2><small>Reading · Drag and match</small></div></div>
+<div class="rb dd">
+<div class="read"><p>
+Last Thursday, we had Thanksgiving dinner at my grandmother’s house.<br>
+The house was decorated with orange leaves and candles.<br>
+My father cooked the turkey.<br>
+The mashed potatoes were prepared by my mother.<br>
+My aunt Rosa made the pumpkin pie.<br>
+My brother and I set the table.<br>
+Before dinner, everyone said thanks.<br>
+Then, we passed the food around the table.<br>
+After dinner, the dishes were washed by my cousins.<br>
+We finished the evening with music and games.
+</p></div>
+<p>🖐 <b>Drag</b> the correct words to complete the sentences about the reading. (On a phone: tap the word, then tap the box.) Be careful: there are extra words!</p>
+<div class="bank">
+<span class="chip" id="c1">mother</span><span class="chip" id="c2">candles</span><span class="chip" id="c3">father</span><span class="chip" id="c4">cousins</span><span class="chip" id="c5">grandmother</span><span class="chip" id="c6">brother</span><span class="chip" id="c7">aunt</span>
+</div>
+<div class="line">1. The dinner was held at my <span class="slot" data-a="grandmother"></span>’s house.</div>
+<div class="line">2. The house was decorated with orange leaves and <span class="slot" data-a="candles"></span>.</div>
+<div class="line">3. The mashed potatoes were prepared by my <span class="slot" data-a="mother"></span>.</div>
+<div class="line">4. The pumpkin pie was made by my <span class="slot" data-a="aunt"></span> Rosa.</div>
+<div class="line">5. The dishes were washed by my <span class="slot" data-a="cousins"></span>.</div>
+<button class="go chk-btn">Check my answers</button><p class="msg"></p>
+</div></section>
+
+<!-- ROOM 10 -->
+<section class="room" data-letter="Y">
+<div class="rh"><div class="pic">🦃</div><div><h2>Room 10 · The Final Door</h2><small>True or False</small></div></div>
+<div class="rb">
+<p>⚖️ Is each passive sentence <b>correct</b> or <b>incorrect</b>?</p>
+<div class="line">1. The pie was eat by my uncle. <select data-ans="F"><option>—</option><option value="T">Correct</option><option value="F">Incorrect</option></select></div>
+<div class="line">2. Turkeys are raised on farms. <select data-ans="T"><option>—</option><option value="T">Correct</option><option value="F">Incorrect</option></select></div>
+<div class="line">3. The dinner were cooked by Mom. <select data-ans="F"><option>—</option><option value="T">Correct</option><option value="F">Incorrect</option></select></div>
+<div class="line">4. The cookies were baked by Mr. Herrera. <select data-ans="T"><option>—</option><option value="T">Correct</option><option value="F">Incorrect</option></select></div>
+<div class="line">5. The game is watch by many people. <select data-ans="F"><option>—</option><option value="T">Correct</option><option value="F">Incorrect</option></select></div>
+<button class="go chk-btn">Check my answers</button><p class="msg"></p>
+</div></section>
+
+<!-- FINAL -->
+<div class="final" id="final">
+<h2>🔐 Code Sheet</h2>
+<p>Write the secret letter from each room. Then use the Alphabet Code to write the number of each letter.</p>
+<div class="codebox" id="cb"></div>
+<p><button class="go" id="chkSheet" disabled>Check my Code Sheet</button> <small>(opens after Room 10)</small></p>
+<p class="msg" id="smsg"></p>
+<div class="lockmsg" id="flock">🔒 The final code unlocks when your Code Sheet is correct.</div>
+<div class="fin locked" id="fin">
+<p><b>Final code:</b> write the 10 numbers with dashes (example: 1-2-3…) <b>or</b> the 10-letter word.</p>
+<input class="lock" id="lock" placeholder="Your final code" aria-label="Final code">
+<p><button class="go" id="open">Open the door</button></p>
+<p class="msg" id="fmsg"></p>
+</div>
+</div>
+
+</div>
+<div id="win" role="dialog" aria-modal="true" aria-labelledby="wt"><div class="card">
+<div class="big">🦃🍂🎉🍁🥧</div>
+<div class="sch">CEUTEC · English VI · Mr. Oscar Herrera</div>
+<h2 id="wt"></h2>
+<p>You have done a great job in English VI. So now you know more about Thanksgiving :-)</p>
+<p id="wtime"></p>
+<div class="big">🍁🌽🎃🍂🦃</div>
+<p><button class="go" id="wclose">Close</button></p>
+</div></div>
+<script>
+(function(){var L='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function row(a,b){var h='<tr>',d='<tr>';for(var i=a;i<b;i++){h+='<th>'+L[i]+'</th>';d+='<td>'+(i+1)+'</td>'}return h+'</tr>'+d+'</tr>'}
+document.getElementById('abc').innerHTML=row(0,13)+row(13,26);
+var cb='';for(var r=1;r<=10;r++)cb+='<div>Room '+r+'<input class="lt" maxlength="1" aria-label="Letter room '+r+'"><input class="nm" maxlength="2" aria-label="Number room '+r+'" placeholder="#"></div>';
+document.getElementById('cb').innerHTML=cb;})();
+// lock rooms 2-10
+var rooms=[].slice.call(document.querySelectorAll('.room'));
+rooms.forEach(function(r,i){r.classList.add('locked');var d=document.createElement('div');d.className='lockmsg';d.textContent=i?'🔒 Locked. Solve Room '+i+' to open this room.':'🔒 Type your name above to open Room 1.';r.appendChild(d)});
+document.getElementById('student').addEventListener('input',function(){if(this.value.trim().length>=2&&rooms[0].classList.contains('locked')){rooms[0].classList.remove('locked');var lm=rooms[0].querySelector('.lockmsg');if(lm)lm.remove();startTimer()}});
+// autumn art banners
+var ART=['⛵ 🏕️ 🌽 🦃','🍳 🥔 🍗 🥄','🍽️ 🕯️ 🥧 🌻','🌽 🥫 🍎 🧅','🎈 🎺 🏙️ 🎅','🍰 👵 🥣 🧁','🚜 🌾 🎃 🐄','🧩 ✏️ 📖 🔍','🏡 🕯️ 🥔 🍂','🔑 🦃 🚪 🎉'];
+rooms.forEach(function(r,i){var a=document.createElement('div');a.className='art';a.setAttribute('aria-hidden','true');a.textContent='🍂 '+ART[i]+' 🍁';r.querySelector('.rh').after(a)});
+// falling leaves
+for(var k=0;k<16;k++){var s=document.createElement('span');s.className='leaf';s.setAttribute('aria-hidden','true');s.textContent=['🍂','🍁','🍂','🌰'][k%4];s.style.cssText='left:'+Math.random()*100+'%;font-size:'+(14+Math.random()*12)+'px;animation-duration:'+(14+Math.random()*14)+'s;animation-delay:-'+Math.random()*20+'s;--dx:'+(Math.random()*120-60)+'px';document.body.appendChild(s)}
+document.getElementById('wclose').onclick=function(){document.getElementById('win').classList.remove('on')};
+// drag and match
+var sel=null;
+function clearSlot(s){var c=document.getElementById(s.dataset.cid);if(c)c.classList.remove('used');s.textContent='';s.dataset.cid='';s.classList.remove('full')}
+function put(s,c){if(!c||c.classList.contains('used'))return;if(s.dataset.cid)clearSlot(s);s.textContent=c.textContent;s.dataset.cid=c.id;s.classList.add('full');c.classList.add('used');c.classList.remove('sel');sel=null}
+document.querySelectorAll('.chip').forEach(function(c){c.draggable=true;c.addEventListener('dragstart',function(e){e.dataTransfer.setData('text',c.id)});c.addEventListener('click',function(){document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('sel')});sel=c;c.classList.add('sel')})});
+document.querySelectorAll('.slot').forEach(function(s){s.addEventListener('dragover',function(e){e.preventDefault()});s.addEventListener('drop',function(e){e.preventDefault();put(s,document.getElementById(e.dataTransfer.getData('text')))});s.addEventListener('click',function(){if(s.dataset.cid)clearSlot(s);else if(sel)put(s,sel)})});
+// checking rooms (typed sentences ignore capital letters and punctuation)
+function norm(s){return s.toLowerCase().replace(/[^a-z ]/g,'').replace(/\s+/g,' ').trim()}
+function allOk(room){var good=true;
+room.querySelectorAll('[data-ans]').forEach(function(el){var a=el.dataset.ans,v;
+if(el.tagName==='SELECT')v=el.value;
+else if(el.tagName==='INPUT'){v=norm(el.value);a=norm(a)}
+else if(el.classList.contains('radio')){var c=el.querySelector('input:checked');v=c?c.value:''}
+else v=[].map.call(el.querySelectorAll('input:checked'),function(i){return i.value}).join(',');
+if(v!==a)good=false});
+room.querySelectorAll('.slot').forEach(function(s){if(s.textContent!==s.dataset.a)good=false});
+return good}
+document.querySelectorAll('.chk-btn').forEach(function(b){var n=0;b.onclick=function(){var r=b.closest('.room'),i=rooms.indexOf(r),m=r.querySelector('.msg');
+if(allOk(r)){var t='🔓 Door open! Secret letter: '+r.dataset.letter;
+if(i<rooms.length-1){var nx=rooms[i+1];nx.classList.remove('locked');var lm=nx.querySelector('.lockmsg');if(lm)lm.remove();t+=' · Room '+(i+2)+' is now open ↓'}
+else{document.getElementById('chkSheet').disabled=false;t+=' · Now complete and check your Code Sheet ↓'}
+m.className='msg good';m.textContent=t;b.disabled=true;return}
+n++;var w=10*n;b.disabled=true;m.className='msg bad';m.textContent='🔒 Not yet. Wait '+w+'s and check again.';
+var tt=setInterval(function(){w--;if(w<=0){clearInterval(tt);b.disabled=false;m.textContent='🔒 Not yet. Read carefully and try again.'}else m.textContent='🔒 Not yet. Wait '+w+'s and check again.'},1000)}});
+// timer starts automatically
+var left=1800,tm;
+function draw(){var m=Math.floor(left/60),s=left%60;document.getElementById('clock').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s}
+function startTimer(){if(tm)return;tm=setInterval(function(){left--;draw();if(left<=0){clearInterval(tm);alert('Time is up!')}},1000)}
+// code sheet check
+document.getElementById('chkSheet').onclick=function(){var W='GRATEFULLY',N=[7,18,1,20,5,6,21,12,12,25],ok=true;
+document.querySelectorAll('#cb div').forEach(function(d,i){var l=d.querySelector('.lt').value.trim().toUpperCase(),n=d.querySelector('.nm').value.trim();if(l!==W[i]||n!==String(N[i]))ok=false});
+var m=document.getElementById('smsg');
+if(ok){m.className='msg good';m.textContent='🔓 Code Sheet complete! Now type the final code ↓';document.getElementById('fin').classList.remove('locked');document.getElementById('flock').style.display='none';this.disabled=true}else{m.className='msg bad';m.textContent='🔒 The Code Sheet is not correct yet. Check your letters and numbers.'}};
+// final lock
+document.getElementById('open').onclick=function(){var v=document.getElementById('lock').value.toUpperCase().replace(/[^A-Z0-9]/g,''),m=document.getElementById('fmsg');
+if(v==='GRATEFULLY'||v==='7181205621121225'){var nm=document.getElementById('student').value.trim(),mm=Math.floor(left/60),ss=left%60;m.textContent='🎉 Congratulations, '+nm+'! You have done a great job in English VI. So now you know more about Thanksgiving :-)';m.className='msg good';clearInterval(tm);document.getElementById('wt').textContent='Congratulations, '+nm+'!';document.getElementById('wtime').textContent='Time left: '+(mm<10?'0':'')+mm+':'+(ss<10?'0':'')+ss;document.getElementById('win').classList.add('on')}else{m.textContent='🔒 Wrong code. Check your letters and numbers.';m.className='msg bad'}};
+</script>
+</body>
+</html>
